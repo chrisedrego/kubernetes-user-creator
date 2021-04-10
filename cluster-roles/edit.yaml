@@ -1,11 +1,11 @@
+# Built-in Kubernetes Role that has Cluster Wide Edit access to the resources
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   annotations:
     rbac.authorization.kubernetes.io/autoupdate: "true"
   labels:
-  name: read-only
-  namespace: default
+  name: NAME_edit
 rules:
 - apiGroups:
   - ""
@@ -17,7 +17,6 @@ rules:
   - update
   - create
   - patch
-
 - apiGroups:
   - extensions
   resources: ["*"]

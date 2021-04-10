@@ -1,7 +1,8 @@
+# Built-in Kubernetes Role that has Cluster Wide access to the resources
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: cluster-admin
+  name: NAME_admin
 rules:
 - apiGroups:
   - '*'
