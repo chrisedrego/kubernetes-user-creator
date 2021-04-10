@@ -40,29 +40,40 @@ get_server(){
     echo -e "\n Server: ${SERVER}"
 }
 
-create_cluster_role(){
-    mkdir -p ${SERVICE_ACCOUNT_NAME}
+create_config(){
+    mkdir -p ./kubeconfigs/${SERVICE_ACCOUNT_NAME}
     echo -e "\nBinding Cluster Role"
     echo -e "\nCreating a New Cluster Role ${SERVICE_ACCOUNT_NAME}_${CLUSTER_ROLE} from Parent Cluster Role: ${CLUSTER_ROLE}"
     PARENT_CLUSTER_ROLE="./cluster-roles/${CLUSTER_ROLE}.yaml"
     echo $PARENT_CLUSTER_ROLE
-    sed 's|NAME|'$SERVICE_ACCOUNT_NAME'|g' $PARENT_CLUSTER_ROLE > ./${SERVICE_ACCOUNT_NAME}/${SERVICE_ACCOUNT_NAME}_cluster-role.yaml
-    kubectl apply -f ./${SERVICE_ACCOUNT_NAME}/${SERVICE_ACCOUNT_NAME}_cluster-role.yaml || echo "Failure"
-    rm -rf ./${SERVICE_ACCOUNT_NAME}/${SERVICE_ACCOUNT_NAME}_cluster-role.yaml
+    sed 's|NAME|'$SERVICE_ACCOUNT_NAME'|g' $PARENT_CLUSTER_ROLE > ./kubeconfigs/${SERVICE_ACCOUNT_NAME}/${SERVICE_ACCOUNT_NAME}_${CLUSTER_ROLE}_cluster-role.yaml
+    kubectl apply -f ./kubeconfigs/${SERVICE_ACCOUNT_NAME}/${SERVICE_ACCOUNT_NAME}_${CLUSTER_ROLE}_cluster-role.yaml || echo "Failure"
+    rm -rf ./kubeconfigs/${SERVICE_ACCOUNT_NAME}/${SERVICE_ACCOUNT_NAME}_${CLUSTER_ROLE}_cluster-role.yaml || echo "Unable to remove the cluster role."
+
+    # Binding the Cluster Role Bindings
+    kubectl create clusterrolebinding ${SERVICE_ACCOUNT_NAME} --clusterrole=${SERVICE_ACCOUNT_NAME}_${CLUSTER_ROLE} --serviceaccount=$NAMESPACE:$SERVICE_ACCOUNT_NAME -n $NAMESPACE
+
+    echo 
+    "apiVersion: v1
+    kind: Config
+    users:
+    - name: $SERVICE_ACCOUNT_NAME
+      user:
+        token: $TOKEN
+    clusters:
+    - cluster:
+        certificate-authority-data: $CERTIFICATE
+        server: $SERVER
+      name: $CLUSTERNAME
+    contexts:
+    - context:
+        cluster: $CLUSTERNAME
+        user: $SERVICE_ACCOUNT_NAME
+      name: $CLUSTERNAME
+    current-context: $CLUSTERNAME" > ./kubeconfigs/$SERVICE_ACCOUNT_NAME/config
 }
 
-bind_crb(){
-    echo -e "\nBinding Cluster Role"
-    kubectl create clusterrolebinding cluster-viewer --clusterrole='view' --serviceaccount=$NAMESPACE:$SERVICE_ACCOUNT_NAME -n $NAMESPACE
-}
-
-create_kubecfg(){
-    echo -e "\nCreating Kubernetes Config File"
-    kubectl create clusterrolebinding cluster-viewer --clusterrole='view' --serviceaccount=$NAMESPACE:$SERVICE_ACCOUNT_NAME -n $NAMESPACE
-}
-
-
-if [ -z "$SERVICE_ACCOUNT_NAME" ]
+if [ -z "$1" ] && [ -z "$2" ] 
 then
   echo "Please Enter valid details."
   echo "./script.sh <USER_NAME> <CLUSTER_ROLE_NAME>"
@@ -78,59 +89,5 @@ else
   get_cluster_name
   get_cert
   get_server
-  create_cluster_role
+  create_config
 fi
-
-mkdir -p $SERVICE_ACCOUNT_NAME
-
-# echo "apiVersion: v1
-# kind: Config
-# users:
-# - name: $USER
-#   user:
-#     token: $TOKEN
-# clusters:
-# - cluster:
-#     certificate-authority-data: $CERTIFICATE
-#     server: $SERVER
-#   name: $CLUSTERNAME
-# contexts:
-# - context:
-#     cluster: $CLUSTERNAME
-#     user: $USER
-#   name: $CLUSTERNAME-context
-#   current-context: $CLUSTERNAME-context" > $NAME/kubeconfig_"$counter".txt
-
-# 
-# kubectl create clusterrolebinding add-on-cluster-admin --clusterrole=cluster-admin --serviceaccount=kube-system:kubeconfig-sa
-# CREATE SERVICE ACCOUNT FROM NAME
-
-
-# GET THE SECRET OF THE SERVICE ACCOUNT
-
-# GET THE TOKEN FROM THE SECRET
-
-# GET THE CERTIFICATE certificate-authority-data FROM KUBECONFIG FILE
-
-# GET THE SERVER DETAILS
-
-# PLACE IN PLACEHOLDER
-# apiVersion: v1
-# kind: Config
-# users:
-# - name: svcs-acct-dply
-#   user:
-#     token: <replace this with token info>
-# clusters:
-# - cluster:
-#     certificate-authority-data: <replace this with certificate-authority-data info>
-#     server: <replace this with server info>
-#   name: self-hosted-cluster
-# contexts:
-# - context:
-#     cluster: self-hosted-cluster
-#     user: svcs-acct-dply
-#   name: svcs-acct-context
-# current-context: svcs-acct-context
-
-# TOKENNAME=`kubectl -n kube-system get serviceaccount/test -o jsonpath='{.secrets[0].name}'`
