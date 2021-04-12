@@ -53,24 +53,43 @@ create_config(){
     # Binding the Cluster Role Bindings
     kubectl create clusterrolebinding ${SERVICE_ACCOUNT_NAME} --clusterrole=${SERVICE_ACCOUNT_NAME}_${CLUSTER_ROLE} --serviceaccount=$NAMESPACE:$SERVICE_ACCOUNT_NAME -n $NAMESPACE
 
-    echo 
-    "apiVersion: v1
-    kind: Config
-    users:
-    - name: $SERVICE_ACCOUNT_NAME
-      user:
-        token: $TOKEN
-    clusters:
-    - cluster:
-        certificate-authority-data: $CERTIFICATE
-        server: $SERVER
-      name: $CLUSTERNAME
-    contexts:
-    - context:
-        cluster: $CLUSTERNAME
-        user: $SERVICE_ACCOUNT_NAME
-      name: $CLUSTERNAME
-    current-context: $CLUSTERNAME" > ./kubeconfigs/$SERVICE_ACCOUNT_NAME/config
+    KUBECFG_PATH=./kubeconfigs/$SERVICE_ACCOUNT_NAME/config
+
+    echo "apiVersion: v1" >> $KUBECFG_PATH
+    echo "kind: Config" >> $KUBECFG_PATH
+    echo "users:" >> $KUBECFG_PATH
+    echo "- name: $SERVICE_ACCOUNT_NAME" >> $KUBECFG_PATH
+    echo "  user:" >> $KUBECFG_PATH
+    echo "    token: $TOKEN" >> $KUBECFG_PATH
+    echo "clusters:" >> $KUBECFG_PATH
+    echo "- cluster:" >> $KUBECFG_PATH
+    echo "    certificate-authority-data: $CERTIFICATE" >> $KUBECFG_PATH
+    echo "    server: $SERVER" >> $KUBECFG_PATH
+    echo "  name: $CLUSTERNAME" >> $KUBECFG_PATH
+    echo "contexts:" >> $KUBECFG_PATH
+    echo "- context:" >> $KUBECFG_PATH
+    echo "    cluster: $CLUSTERNAME" >> $KUBECFG_PATH
+    echo "    user: $SERVICE_ACCOUNT_NAME" >> $KUBECFG_PATH
+    echo "  name: $CLUSTERNAME" >> $KUBECFG_PATH
+    echo "current-context: $CLUSTERNAME" >> $KUBECFG_PATH
+    cat $KUBECFG_PATH
+    # "apiVersion: v1
+    
+    # users:
+    # - name: $SERVICE_ACCOUNT_NAME
+    #   user:
+    #     token: $TOKEN
+    # clusters:
+    # - cluster:
+    #     certificate-authority-data: $CERTIFICATE
+    #     server: $SERVER
+    #   name: $CLUSTERNAME
+    # contexts:
+    # - context:
+    #     cluster: $CLUSTERNAME
+    #     user: $SERVICE_ACCOUNT_NAME
+    #   name: $CLUSTERNAME
+    # current-context: $CLUSTERNAME" > 
 }
 
 if [ -z "$1" ] && [ -z "$2" ] 
