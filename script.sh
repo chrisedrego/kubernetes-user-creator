@@ -53,7 +53,7 @@ create_config(){
     # Binding the Cluster Role Bindings
     kubectl create clusterrolebinding ${SERVICE_ACCOUNT_NAME} --clusterrole=${SERVICE_ACCOUNT_NAME}_${CLUSTER_ROLE} --serviceaccount=$NAMESPACE:$SERVICE_ACCOUNT_NAME -n $NAMESPACE
 
-    KUBECFG_PATH=./kubeconfigs/$SERVICE_ACCOUNT_NAME/config
+    KUBECFG_PATH=./kubeconfigs/$SERVICE_ACCOUNT_NAME/config-$CLUSTERNAME
 
     echo "apiVersion: v1" >> $KUBECFG_PATH
     echo "kind: Config" >> $KUBECFG_PATH
