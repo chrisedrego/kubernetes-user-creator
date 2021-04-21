@@ -110,3 +110,7 @@ else
   get_server
   create_config
 fi
+
+# export KUBECONFIG=/Volumes/data/personal/kubernetes-user-creator/kubeconfigs/$USERconfig-di-platform-v1.dev-cluster.didevops.com:/Volumes/data/personal/kubernetes-user-creator/kubeconfigs/$USERconfig-di-platform-v1.release-cluster.didevops.com:/Volumes/data/personal/kubernetes-user-creator/kubeconfigs/$USERconfig-di-platform-v1.staging-cluster.didevops.com
+# kubectl config view --merge --flatten
+# kubectl config view --merge --flatten > $(pwd)/central/config
