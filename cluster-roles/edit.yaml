@@ -4,7 +4,7 @@ kind: ClusterRole
 metadata:
   annotations:
     rbac.authorization.kubernetes.io/autoupdate: "true"
-  labels:
+  labels: {}
   name: NAME_edit
 rules:
 - apiGroups:
